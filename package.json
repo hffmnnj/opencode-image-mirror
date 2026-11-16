@@ -1,6 +1,6 @@
 {
   "name": "hffmnnj.image-mirror",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mirror every image an OpenCode V2 agent sees into the user chat without adding it back to the agent context",
   "type": "module",
   "exports": {
