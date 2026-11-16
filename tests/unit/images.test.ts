@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import {
+  chatFingerprints,
   collectImages,
   imageExtension,
   isImageMime,
@@ -101,6 +102,71 @@ describe("collectImages", () => {
     expect(images).toHaveLength(1)
     expect(images[0]!.kind).toBe("bytes")
     expect(Buffer.from(images[0]!.bytes!)).toEqual(bytes)
+  })
+})
+
+describe("chat fingerprints", () => {
+  test("recognises an image stored as a tool-result data URL", () => {
+    const bytes = Buffer.from("stored-jpeg-bytes")
+    const stored = [
+      {
+        id: "msg_tool",
+        type: "assistant",
+        content: [
+          {
+            type: "tool",
+            state: {
+              status: "completed",
+              content: [
+                {
+                  type: "file",
+                  mime: "image/jpeg",
+                  uri: `data:image/jpeg;base64,${bytes.toString("base64")}`,
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ]
+    const candidate = collectImages([
+      {
+        id: "msg_injected",
+        content: [
+          {
+            type: "media",
+            media: {
+              mediaType: "image/jpeg",
+              source: { type: "base64", data: bytes.toString("base64"), mediaType: "image/jpeg" },
+            },
+          },
+        ],
+      },
+    ])[0]!
+
+    expect(chatFingerprints(stored).has(candidate.fingerprint)).toBe(true)
+  })
+
+  test("recognises an image stored as a user attachment", () => {
+    const bytes = Buffer.from("attached-png")
+    const stored = [
+      { id: "msg_user", type: "user", files: [{ data: bytes.toString("base64"), mime: "image/png" }] },
+    ]
+    const candidate = collectImages([
+      {
+        content: [
+          {
+            type: "media",
+            media: {
+              mediaType: "image/png",
+              source: { type: "bytes", data: bytes, mediaType: "image/png" },
+            },
+          },
+        ],
+      },
+    ])[0]!
+
+    expect(chatFingerprints(stored).has(candidate.fingerprint)).toBe(true)
   })
 })
 

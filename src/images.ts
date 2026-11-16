@@ -175,8 +175,13 @@ export function chatFingerprints(messages: readonly unknown[]): ReadonlySet<stri
     for (const part of stored.content) {
       if (part?.type !== "tool" || part.state?.status !== "completed" || !Array.isArray(part.state.content)) continue
       for (const item of part.state.content) {
-        if (item?.type === "file" && isImageMime(item.mime) && typeof item.uri === "string")
-          fingerprints.add(sha256(item.uri))
+        if (item?.type !== "file" || !isImageMime(item.mime) || typeof item.uri !== "string") continue
+        fingerprints.add(sha256(item.uri))
+        // Tool results often store images as data URLs. A context hook sees
+        // the decoded bytes, so fingerprint those too or the same image looks
+        // new and gets mirrored a second time.
+        const dataUrl = /^data:image\/[^;,]+;base64,(.*)$/s.exec(item.uri)
+        if (dataUrl) fingerprints.add(sha256(Buffer.from(dataUrl[1]!, "base64")))
       }
     }
   }
