@@ -1,0 +1,39 @@
+{
+  "name": "hffmnnj.image-mirror",
+  "version": "1.0.0",
+  "description": "Mirror every image an OpenCode V2 agent sees into the user chat without adding it back to the agent context",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "assets/banner.png"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hffmnnj/opencode-image-mirror.git"
+  },
+  "homepage": "https://github.com/hffmnnj/opencode-image-mirror#readme",
+  "bugs": {
+    "url": "https://github.com/hffmnnj/opencode-image-mirror/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test tests/unit",
+    "check": "bun run typecheck && bun run test"
+  },
+  "dependencies": {
+    "@opencode/plugin": "2.3.0"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.5",
+    "typescript": "5.9.3"
+  }
+}
